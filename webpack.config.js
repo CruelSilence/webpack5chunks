@@ -1,10 +1,21 @@
 const webpack = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebPackPlugin = require( 'html-webpack-plugin' );
 const path = require('path');
 
+const CPU_NUMBER = require('os').cpus().length;
+
+const scriptLoaders = [{
+    loader: 'ts-loader',
+    options: {
+        happyPackMode: true,
+        configFile: __dirname + "/tsconfig.json"
+    }
+}];
+
 module.exports = {
-    context: __dirname + "/src",
-    entry: ["./index.jsx"],
+    context: __dirname,
+    entry: ["./src/index.tsx"],
     mode: 'development',
     output: {
         path: __dirname + "/dist",
@@ -13,20 +24,15 @@ module.exports = {
         publicPath: "/"
     },
     resolve: {
-        extensions: ['.js', '.jsx']
+        extensions: ['.js', '.ts', '.tsx', '.json'],
     },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
-                exclude: /(node_modules)/,
+                test: /\.ts(x?)$/,
+                exclude: /node_modules/,
                 include: /src/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        presets: ["@babel/preset-env", "@babel/preset-react"]
-                    }
-                },
+                use: scriptLoaders
             },
             {
                 test: /\.(js|jsx)$/,
@@ -40,10 +46,23 @@ module.exports = {
             template: path.resolve( __dirname, 'src/index.html' ),
             filename: 'index.html'
         }),
-        new webpack.HotModuleReplacementPlugin(),
+        new ForkTsCheckerWebpackPlugin({
+            memoryLimit: 4096,
+            eslint: false,
+            tslint: false,
+            checkSyntacticErrors: true,
+            measureCompilationTime: true,
+            tsconfig: __dirname + "/tsconfig.json",
+            workers: Math.max(CPU_NUMBER - 2, 1),
+            async: true
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ],
     devServer: {
         historyApiFallback: true,
-        hot: true
+        hot: true,
+        host: '0.0.0.0',
+        socket: '/tmp/crm-frontend-server.csilence.sock',
+        disableHostCheck: true
     }
 };

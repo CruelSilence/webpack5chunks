@@ -12,7 +12,7 @@ class Bundle extends React.Component {
     render() {
         return (
             <div>
-                oh yeah! god damn it
+                WORKS!!!
             </div>
         );
     }
