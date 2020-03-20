@@ -1,9 +1,6 @@
 const webpack = require('webpack');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebPackPlugin = require( 'html-webpack-plugin' );
 const path = require('path');
-
-const CPU_NUMBER = require('os').cpus().length;
 
 const scriptLoaders = [{
     loader: 'ts-loader',
@@ -46,23 +43,9 @@ module.exports = {
             template: path.resolve( __dirname, 'src/index.html' ),
             filename: 'index.html'
         }),
-        new ForkTsCheckerWebpackPlugin({
-            memoryLimit: 4096,
-            eslint: false,
-            tslint: false,
-            checkSyntacticErrors: true,
-            measureCompilationTime: true,
-            tsconfig: __dirname + "/tsconfig.json",
-            workers: Math.max(CPU_NUMBER - 2, 1),
-            async: true
-        }),
         new webpack.HotModuleReplacementPlugin()
     ],
     devServer: {
-        historyApiFallback: true,
         hot: true,
-        host: '0.0.0.0',
-        socket: '/tmp/crm-frontend-server.csilence.sock',
-        disableHostCheck: true
     }
 };
